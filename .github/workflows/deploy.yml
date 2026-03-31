@@ -28,3 +28,20 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/nextjs-app:latest
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            docker pull ghcr.io/${{ github.repository_owner }}/nextjs-app:latest
+            docker stop nextjs-app || true
+            docker rm nextjs-app || true
+            docker run -d -p 3000:3000 --name nextjs-app ghcr.io/${{ github.repository_owner }}/nextjs-app:latest
