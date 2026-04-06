@@ -53,8 +53,4 @@ jobs:
         run: |
           curl -X POST ${{ secrets.LAMBDA_URL }} \
           -H "Content-Type: application/json" \
-          -d '{
-            "status": "success",
-            "branch": "${{ github.ref_name }}",
-            "commit": "${{ github.sha }}"
-          }'
+          -d "{\"status\":\"success\",\"branch\":\"${{ github.ref_name }}\",\"commit\":\"${{ github.sha }}\"}"
