@@ -51,6 +51,14 @@ jobs:
             docker run -d -p 3000:3000 --name nextjs-app ghcr.io/iserte/nextjs-app:latest
       - name: Trigger Lambda for logging
         run: |
-          curl -X POST ${{ secrets.LAMBDA_URL }} \
-          -H "Content-Type: application/json" \
-          -d "{\"status\":\"success\",\"branch\":\"${{ github.ref_name }}\",\"commit\":\"${{ github.sha }}\"}"
+          cat <<EOF > payload.json
+          {
+            "status": "success",
+            "branch": "${{ github.ref_name }}",
+            "commit": "${{ github.sha }}"
+          }
+          EOF
+
+          curl -X POST "${{ secrets.LAMBDA_URL }}" \
+            -H "Content-Type: application/json" \
+            -d @payload.json
